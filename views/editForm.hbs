@@ -1,0 +1,25 @@
+<h2>MODIFY VIDEOGAME</h2>
+
+<form action="/edit-videogame/{{_id}}" method="POST">
+
+   <label for="name">Name: </label>
+    <input type="text" name="name" id="name" value="{{name}}">
+    <br>
+    <label for="platform">Platform: </label>
+    <input type="text" name="platform" id="platform" value="{{platform}}">
+    <br>
+    <label for="genre">Genre: </label>
+    <input type="text" name="genre" id="genre" value="{{genre}}">
+    <br>
+    <label for="developer">Developer: </label>
+    <input type="text" name="developer" id="developer" value="{{developer}}">
+    <br>
+    <label for="releaseDate">Release Date: </label>
+    <input type="text" name="releaseDate" id="releaseDate" value="{{releaseDate}}">
+    <br>
+    <label for="pegi">PEGI: </label>
+    <input type="text" name="pegi" id="pegi" value="{{pegi}}">
+    <br>
+    <button class="button is-primary">MODIFY</button>
+
+</form>

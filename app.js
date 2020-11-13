@@ -33,6 +33,9 @@ app.set('views', __dirname + '/views')
 //BODY PARSER
 app.use(bodyParser.urlencoded({extended: true}))
 
+//Static folder
+app.use(express.static(__dirname + '/public'))
+
 //ROUTES
 app.get('/', (req, res, next)=>{
 
@@ -44,7 +47,7 @@ app.get('/new-videogame',(req, res, next)=>{
 })
 
 app.get('/all-videogames',(req, res, next)=>{
-    Videogame.find({}, {name:1 , _id:0})
+    Videogame.find({}, {name:1 , _id: 1})
     .then((videogames)=>{
         res.render('allVideogames', {videogames})
     })
@@ -52,6 +55,35 @@ app.get('/all-videogames',(req, res, next)=>{
         console.log(err)
         res.send(err)
     })
+})
+
+app.post('/delete-game/:id', (req, res, next)=>{
+    const id = req.params.id
+    Videogame.findByIdAndDelete(id)
+    .then(()=>{
+        res.redirect('/all-videogames')
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
+})
+
+app.get('/edit-videogame/:id', (req, res, next)=>{
+    const _id = req.params.id
+    Videogame.findById(id)
+    .then(()=>{
+        res.render('editForm', result)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
+})
+
+app.post('/edit-videogame/:id', (req, res, next)=>{
+    // const id = req.params.id
+    // Videogame.findByIdAndUpdate(id, )
 })
 
 app.get('/videogame/:id', (req, res, next)=>{
@@ -72,7 +104,7 @@ app.post('/new-videogame', (req, res, next)=>{
 
     const splitString = (_string)=>{
         const genreString =  _string
-        const splittedGenreString = genreString.split(', ')
+        const splittedGenreString = genreString.split(',')
         return splittedGenreString
     }
 
