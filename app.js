@@ -69,10 +69,12 @@ app.post('/delete-game/:id', (req, res, next)=>{
     })
 })
 
+//ROUTE GET MODIFY VIDEOGAME
 app.get('/edit-videogame/:id', (req, res, next)=>{
     const _id = req.params.id
-    Videogame.findById(id)
-    .then(()=>{
+    Videogame.findById(_id)
+
+    .then((result)=>{
         res.render('editForm', result)
     })
     .catch((err)=>{
@@ -81,9 +83,19 @@ app.get('/edit-videogame/:id', (req, res, next)=>{
     })
 })
 
+//ROUTE POST MODIFY VIDEOGAME
 app.post('/edit-videogame/:id', (req, res, next)=>{
-    // const id = req.params.id
-    // Videogame.findByIdAndUpdate(id, )
+    const _id = req.params.id
+    const editedVideogame = req.body
+
+    Videogame.findByIdAndUpdate(_id, editedVideogame)
+    .then((result)=>{
+        res.redirect(`/videogame/${_id}`)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
 })
 
 app.get('/videogame/:id', (req, res, next)=>{
@@ -116,7 +128,7 @@ app.post('/new-videogame', (req, res, next)=>{
     Videogame.create(newVideogame)
     .then((result)=>{
         console.log(result)
-        res.render('newVideogame')
+        res.render('/all-videogames')
     })
     .catch((error)=>console.log(error))
 })
