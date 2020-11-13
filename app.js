@@ -3,11 +3,16 @@ const dotenv        = require ("dotenv")
 const express       = require ("express")
 const hbs           = require ("hbs")
 const mongoose      = require ("mongoose")
-const bodyParser    = require ('body-parser')
+const bodyParser    = require ("body-parser")
+const bcrypt        = require ("bcrypt")
+const session       = require ("express-session")
+const MongoStore    = require ("connect-mongo")(session)
 
 //CONSTANTS
 const app = express()
 const Videogame = require('./models/Videogame.js')
+const User = require('./models/User.js')
+const { exists } = require("./models/Videogame.js")
 
 //CONFIGURATION .env
 require('dotenv').config()
@@ -35,6 +40,18 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 //Static folder
 app.use(express.static(__dirname + '/public'))
+
+//COOKIES
+app.use(session({
+    secret: "basic-auth-secret",
+    cookie: { maxAge: 60000 },
+    saveUninitialized: true,
+    resave:true,
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection,
+      ttl: 24 * 60 * 60 // 1 day
+    })
+}))
 
 //ROUTES
 app.get('/', (req, res, next)=>{
@@ -132,6 +149,64 @@ app.post('/new-videogame', (req, res, next)=>{
     })
     .catch((error)=>console.log(error))
 })
+
+app.get('/sign-up', (req, res, next)=>{
+    res.render('signUp')
+})
+
+
+
+app.get('/log-in', (req, res, next)=>{
+    res.render('login')
+})
+
+app.post('/log-in', (req, res, next)=>{
+  
+    const {email, password} = req.body
+
+    User.findOne({email: email})
+    .then((result)=>{
+        if(!result){
+            res.redirect('/logIn', {errorMessage: 'User does not exist'})
+        } else {
+            bcrypt.compare(password, result.password)
+            .then((resultFromBcrypt)=>{
+                if(resultFromBcrypt){
+                    req.session.currentUser = email
+                    res.redirect('/')
+                    // req.session.destroy
+                } else {
+                    res.render('logIn', {errorMessage:'Password incorrect.'})
+                }
+            })
+        }
+    })
+})
+
+app.post('/sign-up', (req, res, next)=>{
+    const {email, password} = req.body
+    User.findOne({email: email})
+    .then((result)=>{
+      if(!result){
+        bcrypt.genSalt(10)
+        .then((salt)=>{
+          bcrypt.hash(password, salt)
+          .then((hashedPassword)=>{
+            const hashedUser = {email: email, password: hashedPassword}
+            User.create(hashedUser)
+            .then((result)=>{
+              res.redirect('/')
+            })
+          })
+        })
+        .catch((err)=>{
+          res.send(err)
+        })
+      } else {
+        res.render('logIn', {errorMessage: 'This user already exists. Do you want to Log In?'})
+      }
+    })
+  })
 
 //LISTENER
 app.listen(process.env.PORT, ()=>{
