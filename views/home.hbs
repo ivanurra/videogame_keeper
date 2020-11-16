@@ -1,1 +1,7 @@
-<p>HOMEPAGE</p>
+{{#if session}}
+    {{> logOut}}
+{{else}}
+    {{> signMenu}}
+{{/if}}
+
+<p>HOMEPAGE</p> 
